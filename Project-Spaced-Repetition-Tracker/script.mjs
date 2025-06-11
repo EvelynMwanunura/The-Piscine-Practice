@@ -89,7 +89,9 @@ function renderAgenda(userData) {
   let agendaList = document.createElement("div");
   futureAgendas.forEach((entry) => {
     let listItem = document.createElement("div");
-    listItem.textContent = `${entry.topic}, ${getOrdinal(new Date(entry.date))}`;
+    listItem.textContent = `${entry.topic}, ${getOrdinal(
+      new Date(entry.date)
+    )}`;
 
     // Get spaced repetition dates
     const spacedDates = getSpacedRepetitionDates(entry.date);
