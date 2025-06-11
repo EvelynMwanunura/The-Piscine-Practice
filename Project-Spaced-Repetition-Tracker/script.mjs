@@ -4,12 +4,13 @@
 // Note that when running locally, in order to open a web page which uses modules, you must serve the directory over HTTP e.g. with https://www.npmjs.com/package/http-server
 // You can't open the index.html file using a file:// URL.
 
-import { getUserIds } from "./common.mjs";
+import { getUserIds, getOrdinal } from "./common.mjs";
 import { addData, getData, clearData } from "./storage.mjs";
 import { getSpacedRepetitionDates } from "./dateIntervals.mjs"; // or whatever your file is called
 
 let agendaContainer;
 window.onload = function () {
+
   const users = getUserIds();
   const userDropdown = document.getElementById("dropdown");
   const userForm = document.getElementById("form");
@@ -88,13 +89,13 @@ function renderAgenda(userData) {
   let agendaList = document.createElement("div");
   futureAgendas.forEach((entry) => {
     let listItem = document.createElement("div");
-    listItem.textContent = `${entry.topic}, ${entry.date}`;
+    listItem.textContent = `${entry.topic}, ${getOrdinal(new Date(entry.date))}`;
 
     // Get spaced repetition dates
     const spacedDates = getSpacedRepetitionDates(entry.date);
     spacedDates.forEach((d) => {
       let spacedItem = document.createElement("div");
-      spacedItem.textContent = `${entry.topic}, ${d}`;
+      spacedItem.textContent = `${entry.topic}, ${getOrdinal(new Date(d))}`;
       agendaList.appendChild(spacedItem);
     });
 
