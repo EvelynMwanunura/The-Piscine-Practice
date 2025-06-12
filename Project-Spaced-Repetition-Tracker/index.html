@@ -6,31 +6,47 @@
     <title>Spaced Repetition Tracker App</title>
   </head>
   <body>
-    <h2>Spaced Repetition Tracker App</h2>
-    <br />
+    <main>
+      <h1>Spaced Repetition Tracker App</h1>
 
-    <label for="dropdown">Select User:</label>
-    <select id="dropdown" name="userDropdown">
-      <option>Select a user</option>
-    </select>
+      <form id="form">
+        <div>
+          <label for="dropdown">Select User:</label>
+          <select id="dropdown" name="userDropdown" required aria-label="Select User" size="1">
+            <option value="">Select a user</option>
+          </select>
+        </div><br>
 
-    <form id="form">
-      <label for="topicName">Topic:</label>
-      <input
-        type="text"
-        id="topicName"
-        placeholder="Please enter a topic"
-        name="topicName"
-        required
-      /><br />
+        <div>
+          <label for="topicName">Topic:</label>
+          <input
+            type="text"
+            id="topicName"
+            name="topicName"
+            autocomplete="off"
+            placeholder="Please enter a topic"
+            size="30"
+            aria-label="Topic Name"
+            required
+          />
+        </div><br>
 
-      <label for="startingDate">Starting Date:</label>
-      <input type="date" id="startingDate" name="startingDate" required />
+        <div>
+          <label for="startingDate">Starting Date:</label>
+          <input
+            type="date"
+            id="startingDate"
+            name="startingDate"
+            autocomplete="off"
+            size="30"
+            aria-label="Starting Date"
+            required
+          />
+        </div><br>
 
-      <input type="submit" value="Add Topic" />
-    </form>
-
-    <div id="agendas"></div>
+        <div>
+          <input type="submit" value="Add Topic" aria-label="Add Topic" size="15"/>
+    </main>
 
     <script type="module" src="./script.mjs"></script>
   </body>
