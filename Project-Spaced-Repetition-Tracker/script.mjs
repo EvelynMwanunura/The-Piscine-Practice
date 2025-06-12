@@ -78,28 +78,21 @@ function renderAgenda(userData) {
 
   //collect all dates (main + spaced) in a single array
   let allEntries = [];
-
   userData.forEach((entry) => {
-    if (entry.date >= today) {
-      allEntries.push({
-        topic: entry.topic,
-        date: entry.date,
-      });
-
       const spacedDates = getSpacedRepetitionDates(entry.date);
       spacedDates.forEach((d) => {
-        if (d >= today) {
           allEntries.push({
             topic: entry.topic,
             date: d,
           });
-        }
       });
-    }
+  
   });
 
   //sort all entries by date
   allEntries.sort((a, b) => new Date(a.date) - new Date(b.date));
+  //filter out all the old dates
+ allEntries = allEntries.filter(entry => entry.date >=  today)
 
   if (allEntries.length === 0) {
     agendaContainer.textContent = `No future agendas for this user.`;
@@ -112,7 +105,7 @@ function renderAgenda(userData) {
   allEntries.forEach((entry) => {
     const listItem = document.createElement("div");
 
-    listItem.textContent = `${entry.topic} , ${getOrdinal(
+    listItem.innerHTML = `<strong>${entry.topic}</strong> , ${getOrdinal(
       new Date(entry.date)
     )}`;
     agendaList.appendChild(listItem);
