@@ -92,14 +92,10 @@ function renderAgenda(userData) {
   //sort all entries by date
   allEntries.sort((a, b) => new Date(a.date) - new Date(b.date));
   //filter out all the old dates
- allEntries = allEntries.filter(entry => entry.date >=  today)
+  allEntries = allEntries.filter(entry => entry.date >= today);
 
-  if (allEntries.length === 0) {
-    agendaContainer.textContent = `No future agendas for this user.`;
-    return;
-  }
 
-  //render the sorted list
+  //render the sorted and filtered list
   let agendaList = document.createElement("div");
 
   allEntries.forEach((entry) => {
