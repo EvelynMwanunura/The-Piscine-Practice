@@ -13,7 +13,7 @@ function addMonths(date, months) {
 }
 
 // This function returns spaced repetition dates from a start date
-function getSpacedRepetitionDates(startDate) {
+export function getSpacedRepetitionDates(startDate) {
   const baseDate = new Date(startDate);
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0); // Truncate time for comparison
@@ -43,4 +43,3 @@ function getSpacedRepetitionDates(startDate) {
   .map(date => date.toISOString().slice(0, 10)); // Format the date to YYYY-MM-DD
 }
 
-export { getSpacedRepetitionDates };
