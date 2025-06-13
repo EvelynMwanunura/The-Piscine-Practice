@@ -12,10 +12,17 @@
       <form id="form">
         <div>
           <label for="dropdown">Select User:</label>
-          <select id="dropdown" name="userDropdown" required aria-label="Select User">
+          <select
+            id="dropdown"
+            name="userDropdown"
+            required
+            aria-label="Select User"
+          >
             <option value="">Select a user</option>
           </select>
-        </div><br>
+        </div>
+        <br />
+        <h2>Submit Topic</h2>
 
         <div>
           <label for="topicName">Topic:</label>
@@ -29,7 +36,8 @@
             aria-label="Topic Name"
             required
           />
-        </div><br>
+        </div>
+        <br />
 
         <div>
           <label for="startingDate">Starting Date:</label>
@@ -42,13 +50,21 @@
             aria-label="Starting Date"
             required
           />
-        </div><br>
+        </div>
+        <br />
 
         <div>
-          <input type="submit" value="Add Topic" aria-label="Add Topic" size="15"/>
+          <input
+            type="submit"
+            value="Add Topic"
+            aria-label="Add Topic"
+            size="15"
+          />
         </div>
       </form>
-      <div id="agendas"> </div>
+      <br />
+      <h3>Agendas:</h3>
+      <div id="agendas"></div>
     </main>
 
     <script type="module" src="./script.mjs"></script>
