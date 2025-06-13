@@ -43,7 +43,7 @@ window.onload = function () {
     addData(selectedUserId, [newEntry]);
     //clears input fields after submission
     topicInput.value = "";
-    startingDateInput.value = "";
+    startingDateInput.value = new Date().toISOString().slice(0, 10);
 
     refreshAgendaDisplay(selectedUserId);
   });
@@ -79,21 +79,19 @@ function renderAgenda(userData) {
   //collect all dates (main + spaced) in a single array
   let allEntries = [];
   userData.forEach((entry) => {
-      const spacedDates = getSpacedRepetitionDates(entry.date);
-      spacedDates.forEach((d) => {
-          allEntries.push({
-            topic: entry.topic,
-            date: d,
-          });
+    const spacedDates = getSpacedRepetitionDates(entry.date);
+    spacedDates.forEach((d) => {
+      allEntries.push({
+        topic: entry.topic,
+        date: d,
       });
-  
+    });
   });
 
   //sort all entries by date
   allEntries.sort((a, b) => new Date(a.date) - new Date(b.date));
   //filter out all the old dates
-  allEntries = allEntries.filter(entry => entry.date >= today);
-
+  allEntries = allEntries.filter((entry) => entry.date >= today);
 
   //render the sorted and filtered list
   let agendaList = document.createElement("div");
