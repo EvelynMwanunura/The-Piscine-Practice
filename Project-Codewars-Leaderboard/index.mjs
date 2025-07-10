@@ -28,6 +28,8 @@ fetchButton.addEventListener("click", async (e) => {
   const users = await getUsers(username);
   renderTable(users);
   renderLanguages(users);
+
+  usernameInput.value = "";
 });
 
 //function to get user data, first read the input, split it and map through it and call the API to fetch individuals data simultaneously and return data and throw an error if a user is not valid
