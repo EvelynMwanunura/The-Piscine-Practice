@@ -10,24 +10,27 @@ import { fetchUserData } from "./fetchAPI.mjs";
 
 const usernameInput = document.getElementById("username");
 const fetchButton = document.getElementById("btn");
-/*
-(async () => {
-  const username = "CodeYourFuture";
-  try {
-    const userData = await fetchUserData(username);
-    console.log("user Data", userData);
-  } catch (err) {
-    console.log("fetch failed", err);
-  }
-})();*/
+
+let selectedLanguage = "";
+let allUsers = [];
 
 fetchButton.addEventListener("click", async (e) => {
   e.preventDefault();
   const username = usernameInput.value;
 
   const users = await getUsers(username);
-  renderTable(users);
-  renderLanguages(users);
+  allUsers = users;
+  renderTable(allUsers, selectedLanguage);
+
+  if (allUsers.length > 0) {
+    renderLanguages(allUsers);
+  } else {
+    // Clear the language dropdown if no valid users
+    const langDiv = document.getElementById("lang");
+    langDiv.innerHTML = "";
+  }
+
+  usernameInput.value = "";
 });
 
 //function to get user data, first read the input, split it and map through it and call the API to fetch individuals data simultaneously and return data and throw an error if a user is not valid
@@ -52,24 +55,56 @@ const getUsers = async (username) => {
     .map((result) => result.user);
 
   if (inValidUsers.length > 0) {
-    alert(`${inValidUsers.join(",")} , not found: `);
+    alert(`Username "${inValidUsers.join(", ")}" is not found.`);
   }
 
-  console.log(validUsers);
+  if (validUsers.length === 0) {
+    // Clear language dropdown if no valid users at all
+    const langDiv = document.getElementById("lang");
+    langDiv.innerHTML = "";
+  }
+
   return validUsers;
 };
 
-const renderTable = async (users) => {
+// Global variable to track selected language
+
+const renderTable = async (users, language = selectedLanguage) => {
   const table = document
     .getElementById("leaderboardTable")
     .getElementsByTagName("tbody")[0];
   table.innerHTML = ""; // Clear existing rows
 
-  users.forEach((user) => {
+  const filteredUsers =
+    language && language !== ""
+      ? users.filter(
+          (user) => user.ranks?.languages?.[language]?.score !== undefined
+        )
+      : users;
+
+  filteredUsers.sort((a, b) => {
+    const scoreA =
+      language && language !== ""
+        ? a.ranks.languages[language].score
+        : a.ranks.overall.score;
+    const scoreB =
+      language && language !== ""
+        ? b.ranks.languages[language].score
+        : b.ranks.overall.score;
+
+    return scoreB - scoreA; // descending order
+  });
+
+  filteredUsers.forEach((user, index) => {
     const row = table.insertRow();
+
     row.insertCell(0).textContent = user.username || "N/A";
     row.insertCell(1).textContent = user.clan || "N/A";
-    row.insertCell(2).textContent = user.ranks?.overall?.score || 0;
+    const score =
+      language && language !== ""
+        ? user.ranks?.languages?.[language]?.score ?? "N/A"
+        : user.ranks?.overall?.score ?? "N/A";
+    row.insertCell(2).textContent = index === 0 ? `${score} 🎉🎉` : score;
   });
 };
 
@@ -78,7 +113,7 @@ const renderLanguages = async (users) => {
   langDiv.innerHTML = "";
   const select = document.createElement("select");
   langDiv.append(select);
-  const option = document.createElement("Option");
+  const option = document.createElement("option");
   option.value = "";
   option.textContent = "Overall";
   select.append(option);
@@ -98,4 +133,11 @@ const renderLanguages = async (users) => {
     languageOption.value = language;
     select.append(languageOption);
   }
+
+  select.addEventListener("change", (e) => {
+    e.preventDefault();
+    selectedLanguage = e.target.value;
+
+    renderTable(allUsers, selectedLanguage);
+  });
 };
