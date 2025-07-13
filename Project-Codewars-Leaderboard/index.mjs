@@ -6,7 +6,8 @@
 /*export function makeFetchRequest() {
   return fetch("https://example.com/test");
 }*/
-import { fetchUserData } from "./fetchAPI.mjs";
+
+import { getUsers } from "./fetchAPI.mjs";
 
 const usernameInput = document.getElementById("username");
 const fetchButton = document.getElementById("btn");
@@ -18,7 +19,7 @@ fetchButton.addEventListener("click", async (e) => {
   e.preventDefault();
   const username = usernameInput.value;
 
-  const users = await getUsers(username);
+  const users = await getValidUsers(username);
   allUsers = users;
   renderTable(allUsers, selectedLanguage);
 
@@ -34,19 +35,9 @@ fetchButton.addEventListener("click", async (e) => {
 });
 
 //function to get user data, first read the input, split it and map through it and call the API to fetch individuals data simultaneously and return data and throw an error if a user is not valid
-const getUsers = async (username) => {
-  const usernames = username.split(",").map((user) => user.trim());
-  const promises = usernames.map(async (user) => {
-    try {
-      const data = await fetchUserData(user);
-      return { user, data };
-    } catch (error) {
-      return { user, error: true };
-    }
-  });
 
-  const userData = await Promise.all(promises);
-
+const getValidUsers = async (username) => {
+  const userData = await getUsers(username);
   const validUsers = userData
     .filter((result) => !result.error)
     .map((result) => result.data);
@@ -66,7 +57,6 @@ const getUsers = async (username) => {
 
   return validUsers;
 };
-
 // Global variable to track selected language
 
 const renderTable = async (users, language = selectedLanguage) => {
@@ -108,7 +98,7 @@ const renderTable = async (users, language = selectedLanguage) => {
   });
 };
 
-const renderLanguages = async (users) => {
+export const renderLanguages = async (users) => {
   const langDiv = document.getElementById("lang");
   langDiv.innerHTML = "";
   const select = document.createElement("select");
