@@ -1,4 +1,4 @@
-export async function fetchUserData(username) {
+async function fetchUserData(username) {
   try {
     const response = await fetch(
       `https://www.codewars.com/api/v1/users/${username}`
@@ -11,3 +11,17 @@ export async function fetchUserData(username) {
     throw error;
   }
 }
+
+export const getUsers = async (username) => {
+  const usernames = username.split(",").map((user) => user.trim());
+  const promises = usernames.map(async (user) => {
+    try {
+      const data = await fetchUserData(user);
+      return { user, data };
+    } catch (error) {
+      return { user, error: true };
+    }
+  });
+
+  return await Promise.all(promises);
+};
