@@ -12,3 +12,25 @@ export const renderSongs = (userID) => {
 };
 
 console.log("songs rendered", renderSongs(3));
+
+const renderMostListenedArtist = (userID) => {
+  let listenedArtists = {};
+
+  const songsListenedTo = renderSongs(userID);
+  songsListenedTo.map((song) => {
+    listenedArtists[song.artist] = (listenedArtists[song.artist] || 0) + 1;
+  });
+
+  let mostMostListenedArtist = "";
+  let highestCount = 0;
+
+  for (let artist in listenedArtists) {
+    if (listenedArtists[artist] > highestCount) {
+      highestCount = listenedArtists[artist];
+      mostMostListenedArtist = artist;
+    }
+  }
+  return mostMostListenedArtist;
+};
+
+console.log("most listened artist:", renderMostListenedArtist(1));
