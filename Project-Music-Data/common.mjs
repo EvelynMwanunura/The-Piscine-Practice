@@ -79,3 +79,35 @@ const renderMostListenedSong = (userID) => {
 };
 
 console.log("most listened song ", renderMostListenedSong(3));
+
+const songListenedMostOnFridayNight = (userID) => {
+  const songsUserListenedTo = getListenEvents(userID);
+  const formattedEvents = songsUserListenedTo.map((event) => {
+    const date = new Date(event.timestamp);
+    return { ...event, dateObject: date };
+  });
+
+  let fridaySongs = formattedEvents.filter((event) => {
+    const date = new Date(event.timestamp);
+    const day = date.getDay();
+    const hour = date.getHours();
+    return (day === 5 && hour >= 17) || (day === 6 && hour < 4);
+  });
+
+  let mostSongListenedOnFriday = {};
+  for (let song of fridaySongs) {
+    mostSongListenedOnFriday[song.song_id] =
+      (mostSongListenedOnFriday[song.song_id] || 0) + 1;
+  }
+  let mostSongListenedOnFridayID = "";
+  let highestCount = 0;
+
+  for (let songID in mostSongListenedOnFriday) {
+    if (mostSongListenedOnFriday[songID] > highestCount) {
+      highestCount = mostSongListenedOnFriday[songID];
+      mostSongListenedOnFridayID = songID;
+    }
+  }
+  return getSong(mostSongListenedOnFridayID).title;
+};
+console.log("most listened song on Friday:", songListenedMostOnFridayNight(2));
