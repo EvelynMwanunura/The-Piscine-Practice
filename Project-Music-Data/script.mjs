@@ -23,5 +23,51 @@ const users = () => {
     userSelect.appendChild(option);
   });
 };
+const renderTable = () => {
+  const table = document.createElement("table");
+
+  const tableHeader = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+
+  const headers = ["Question", "Answers"];
+  headers.forEach((header) => {
+    const th = document.createElement("th");
+    th.textContent = header;
+    headerRow.appendChild(th);
+  });
+
+  tableHeader.appendChild(headerRow);
+  table.appendChild(tableHeader);
+
+  document.body.appendChild(table); // Or append where needed
+
+  const tableBody = document.createElement("tbody");
+
+  const data = {
+    "Most listened song (count)": 0,
+    "Most listened song (time)": 0,
+    "Most listened artist (count)": 0,
+    "Most listened artist (time)": 0,
+    "Friday Night Song (count)": 0,
+    "Friday Night Song (time)": 0,
+    "Longest streak song": 0,
+    "Top 3 genres": 0,
+  };
+  Object.entries(data).forEach(([question, answer]) => {
+    const row = document.createElement("tr");
+    const questionCell = document.createElement("td");
+    questionCell.textContent = question;
+
+    const answerCell = document.createElement("td");
+    answerCell.textContent = answer;
+    row.appendChild(questionCell);
+    row.appendChild(answerCell);
+    tableBody.appendChild(row);
+  });
+
+  table.appendChild(tableBody);
+};
+
+renderTable();
 
 window.onload = users();
