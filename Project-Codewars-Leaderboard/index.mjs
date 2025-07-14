@@ -7,7 +7,7 @@
   return fetch("https://example.com/test");
 }*/
 
-import { getUsers } from "./fetchAPI.mjs";
+import { getValidUsers } from "./getValidUsers.mjs";
 
 const usernameInput = document.getElementById("username");
 const fetchButton = document.getElementById("btn");
@@ -33,31 +33,6 @@ fetchButton.addEventListener("click", async (e) => {
 
   usernameInput.value = "";
 });
-
-//function to get user data, first read the input, split it and map through it and call the API to fetch individuals data simultaneously and return data and throw an error if a user is not valid
-
-const getValidUsers = async (username) => {
-  const userData = await getUsers(username);
-  const validUsers = userData
-    .filter((result) => !result.error)
-    .map((result) => result.data);
-  const inValidUsers = userData
-    .filter((result) => result.error)
-    .map((result) => result.user);
-
-  if (inValidUsers.length > 0) {
-    alert(`Username "${inValidUsers.join(", ")}" is not found.`);
-  }
-
-  if (validUsers.length === 0) {
-    // Clear language dropdown if no valid users at all
-    const langDiv = document.getElementById("lang");
-    langDiv.innerHTML = "";
-  }
-
-  return validUsers;
-};
-// Global variable to track selected language
 
 const renderTable = async (users, language = selectedLanguage) => {
   const table = document

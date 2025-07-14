@@ -11,9 +11,9 @@ import test from "node:test";
 import assert from "node:assert";
 import nock from "nock";
 import { getUsers } from "./fetchAPI.mjs";
+import { getValidUsers } from "./getValidUsers.mjs";
 
 global.fetch = fetch;
-global.alert = () => {};
 
 test("mocks a get user function using nock", async () => {
   const mockUserData = {
@@ -41,4 +41,28 @@ test("mocks a get user function using nock", async () => {
   });
 
   assert.ok(scope.isDone(), "Expected fetch call was not made");
+});
+
+test("Get valid users and filter out invalid users", async () => {
+  global.alert = () => {};
+
+  const validScope = nock("https://www.codewars.com")
+    .get("/api/v1/users/someone")
+    .reply(200, {
+      username: "someone",
+      clan: "cyf",
+      ranks: { overall: { score: 100 } },
+    });
+
+  const invalidScope = nock("https://www.codewars.com")
+    .get("/api/v1/users/notfound")
+    .reply(404, {});
+
+  const result = await getValidUsers("someone, notfound");
+
+  assert.strictEqual(result.length, 1);
+  assert.strictEqual(result[0].username, "someone");
+
+  assert.ok(validScope.isDone(), "Valid user request was  not made");
+  assert.ok(invalidScope.isDone(), "Invalid user request was not made");
 });
