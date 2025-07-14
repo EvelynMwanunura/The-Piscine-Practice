@@ -5,7 +5,23 @@
 // You can't open the index.html file using a file:// URL.
 
 import { countUsers } from "./common.mjs";
+import { getUserIDs } from "./data.mjs";
 
-window.onload = function () {
+/*window.onload = function () {
   document.querySelector("body").innerText = `There are ${countUsers()} users`;
 };
+*/
+const userSelect = document.getElementById("userSelect");
+
+const users = () => {
+  const userID = getUserIDs();
+
+  userID.forEach((user) => {
+    const option = document.createElement("option");
+    option.value = user;
+    option.textContent = `user ${user}`;
+    userSelect.appendChild(option);
+  });
+};
+
+window.onload = users();
