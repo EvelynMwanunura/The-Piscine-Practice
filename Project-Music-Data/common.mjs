@@ -56,4 +56,26 @@ const renderMostListenedGenre = (userID) => {
     return mostListenedGenres.map((item) => item.genre).slice(0, 3);
   } else return "user has not listened to any Genre";
 };
-console.log("most listened genres:", renderMostListenedGenre(4));
+console.log("most listened genres:", renderMostListenedGenre(3));
+
+const renderMostListenedSong = (userID) => {
+  const listenedSongs = renderSongs(userID);
+
+  let mostListenedSong = {};
+  listenedSongs.forEach((song) => {
+    mostListenedSong[song.id] = (mostListenedSong[song.id] || 0) + 1;
+  });
+
+  let mostListenedSongID = "";
+  let highestCount = 0;
+
+  for (let songID in mostListenedSong) {
+    if (mostListenedSong[songID] > highestCount) {
+      highestCount = mostListenedSong[songID];
+      mostListenedSongID = songID;
+    }
+  }
+  return getSong(mostListenedSongID).title;
+};
+
+console.log("most listened song ", renderMostListenedSong(3));
