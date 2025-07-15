@@ -13,6 +13,7 @@ import {
   mostTime,
   mostArtist,
   mostTimeFriday,
+  longestStreakSong,
 } from "./common.mjs";
 
 /*window.onload = function () {
@@ -32,7 +33,14 @@ const users = () => {
     userSelect.appendChild(option);
   });
 };
-const renderTable = () => {
+
+userSelect.addEventListener("change", () => {
+  const selectedUserID = parseInt(userSelect.value);
+  if (selectedUserID) {
+    renderTable(selectedUserID);
+  }
+});
+const renderTable = (userID) => {
   const table = document.createElement("table");
 
   const tableHeader = document.createElement("thead");
@@ -53,14 +61,14 @@ const renderTable = () => {
   const tableBody = document.createElement("tbody");
 
   const data = {
-    "Most listened song (count)": renderMostListenedSong(2),
-    "Most listened song (time)": mostTime(2),
-    "Most listened artist (count)": renderMostListenedArtist(2),
-    "Most listened artist (time)": mostArtist(2),
-    "Friday Night Song (count)": songListenedMostOnFridayNight(2),
-    "Friday Night Song (time)": mostTimeFriday(2),
-    "Longest streak song": 0,
-    "Top 3 genres": renderMostListenedGenre(2),
+    "Most listened song (count)": renderMostListenedSong(userID),
+    "Most listened song (time)": mostTime(userID),
+    "Most listened artist (count)": renderMostListenedArtist(userID),
+    "Most listened artist (time)": mostArtist(userID),
+    "Friday Night Song (count)": songListenedMostOnFridayNight(userID),
+    "Friday Night Song (time)": mostTimeFriday(userID),
+    "Longest streak song": longestStreakSong(userID),
+    "Top 3 genres": renderMostListenedGenre(userID),
   };
   Object.entries(data).forEach(([question, answer]) => {
     const row = document.createElement("tr");

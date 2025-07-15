@@ -219,3 +219,29 @@ export const mostTimeFriday = (userID) => {
 };
 
 console.log(mostTimeFriday(1));
+
+export const longestStreakSong = (userID) => {
+  const listenedSongs = renderSongs(userID);
+  console.log("listened songs longstreak", listenedSongs);
+  let longestStreak = [];
+  listenedSongs.map((song) => {
+    const songTitle = song.title;
+    longestStreak.push(songTitle);
+  });
+  console.log("longest streak songs", longestStreak);
+  let longestStreakCount = 0;
+  let currentStreakCount = 0;
+
+  for (let i = 0; i < longestStreak.length; i++) {
+    if (longestStreak[i] === longestStreak[i + 1]) {
+      currentStreakCount++;
+    } else {
+      if (currentStreakCount > longestStreakCount) {
+        longestStreakCount = currentStreakCount;
+      }
+      currentStreakCount = 0;
+    }
+  }
+  return `${longestStreak[longestStreakCount]} with a streak of ${longestStreakCount} times`;
+};
+console.log("longest streak", longestStreakSong(2));
