@@ -12,6 +12,7 @@ import {
   renderMostListenedArtist,
   mostTime,
   mostArtist,
+  mostTimeFriday,
 } from "./common.mjs";
 
 /*window.onload = function () {
@@ -57,7 +58,7 @@ const renderTable = () => {
     "Most listened artist (count)": renderMostListenedArtist(2),
     "Most listened artist (time)": mostArtist(2),
     "Friday Night Song (count)": songListenedMostOnFridayNight(2),
-    "Friday Night Song (time)": 0,
+    "Friday Night Song (time)": mostTimeFriday(2),
     "Longest streak song": 0,
     "Top 3 genres": renderMostListenedGenre(2),
   };

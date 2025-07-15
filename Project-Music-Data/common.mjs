@@ -170,3 +170,52 @@ export const mostArtist = (userID) => {
   return `${mostListenedSong} with ${highestCount} seconds`;
 };
 mostArtist(2);
+
+export const mostTimeFriday = (userID) => {
+  const songsUserListenedTo = getListenEvents(userID);
+  const formattedEvents = songsUserListenedTo.map((event) => {
+    const date = new Date(event.timestamp);
+    return { ...event, dateObject: date };
+  });
+
+  let fridaySongs = formattedEvents.filter((event) => {
+    const date = new Date(event.timestamp);
+    const day = date.getDay();
+    const hour = date.getHours();
+    return (day === 5 && hour >= 17) || (day === 6 && hour < 4);
+  });
+  console.log("friday songs ", fridaySongs);
+
+  let listenedSongs = [];
+  fridaySongs.forEach((song) => {
+    listenedSongs.push(getSong(song.song_id));
+  });
+  console.log("listened songs ", listenedSongs);
+  const songTotals = {};
+  let highestCount = 0;
+  let mostListenedSong = "";
+
+  listenedSongs.forEach((song) => {
+    const songTime = song.duration_seconds;
+    const songTitle = song.title;
+
+    if (songTotals[songTitle]) {
+      songTotals[songTitle] += songTime;
+    } else {
+      songTotals[songTitle] = songTime;
+    }
+  });
+
+  for (const [title, totalTime] of Object.entries(songTotals)) {
+    console.log(`${title}: ${totalTime} seconds`);
+
+    if (totalTime > highestCount) {
+      highestCount = totalTime;
+      mostListenedSong = title;
+    }
+  }
+
+  return `Friday ${mostListenedSong} with ${highestCount} seconds`;
+};
+
+console.log(mostTimeFriday(1));
