@@ -2,7 +2,7 @@ import { getUserIDs } from "./data.mjs";
 import { getSong, getListenEvents } from "./data.mjs";
 
 export const renderSongs = (userID) => {
-  const songsUserListenedTo = getListenEvents(userID);
+  const songsUserListenedTo = getListenEvents(userID) || [];
   let listenedSongs = [];
   songsUserListenedTo.forEach((song) => {
     listenedSongs.push(getSong(song.song_id));
@@ -10,9 +10,7 @@ export const renderSongs = (userID) => {
   return listenedSongs;
 };
 
-console.log("songs rendered", renderSongs(4));
-
-const renderMostListenedArtist = (userID) => {
+export const renderMostListenedArtist = (userID) => {
   let listenedArtists = {};
 
   const songsListenedTo = renderSongs(userID);
@@ -35,9 +33,7 @@ const renderMostListenedArtist = (userID) => {
   } else return mostMostListenedArtist;
 };
 
-console.log("most listened artist:", renderMostListenedArtist(4));
-
-const renderMostListenedGenre = (userID) => {
+export const renderMostListenedGenre = (userID) => {
   let listenedGenres = {};
 
   const songsListenedTo = renderSongs(userID);
@@ -53,12 +49,14 @@ const renderMostListenedGenre = (userID) => {
   mostListenedGenres.sort((a, b) => b.count - a.count).slice(0, 3);
 
   if (mostListenedGenres.length > 0) {
-    return mostListenedGenres.map((item) => item.genre).slice(0, 3);
+    return mostListenedGenres
+      .map((item) => item.genre)
+      .slice(0, 3)
+      .join(", ");
   } else return "user has not listened to any Genre";
 };
-console.log("most listened genres:", renderMostListenedGenre(3));
 
-const renderMostListenedSong = (userID) => {
+export const renderMostListenedSong = (userID) => {
   const listenedSongs = renderSongs(userID);
 
   let mostListenedSong = {};
@@ -75,12 +73,11 @@ const renderMostListenedSong = (userID) => {
       mostListenedSongID = songID;
     }
   }
+
   return getSong(mostListenedSongID).title;
 };
 
-console.log("most listened song ", renderMostListenedSong(3));
-
-const songListenedMostOnFridayNight = (userID) => {
+export const songListenedMostOnFridayNight = (userID) => {
   const songsUserListenedTo = getListenEvents(userID);
   const formattedEvents = songsUserListenedTo.map((event) => {
     const date = new Date(event.timestamp);
@@ -110,4 +107,66 @@ const songListenedMostOnFridayNight = (userID) => {
   }
   return getSong(mostSongListenedOnFridayID).title;
 };
-console.log("most listened song on Friday:", songListenedMostOnFridayNight(2));
+
+export const mostTime = (userID) => {
+  const listenedSongs = renderSongs(userID);
+
+  const songTotals = {};
+  let highestCount = 0;
+  let mostListenedSong = "";
+
+  listenedSongs.forEach((song) => {
+    const songTime = song.duration_seconds;
+    const songTitle = song.title;
+
+    if (songTotals[songTitle]) {
+      songTotals[songTitle] += songTime;
+    } else {
+      songTotals[songTitle] = songTime;
+    }
+  });
+
+  for (const [title, totalTime] of Object.entries(songTotals)) {
+    console.log(`${title}: ${totalTime} seconds`);
+
+    if (totalTime > highestCount) {
+      highestCount = totalTime;
+      mostListenedSong = title;
+    }
+  }
+
+  return `${mostListenedSong} with ${highestCount} seconds`;
+};
+
+console.log(mostTime(2));
+
+export const mostArtist = (userID) => {
+  const listenedSongs = renderSongs(userID);
+
+  const songTotals = {};
+  let highestCount = 0;
+  let mostListenedSong = "";
+
+  listenedSongs.forEach((song) => {
+    const songTime = song.duration_seconds;
+    const songArtist = song.artist;
+
+    if (songTotals[songArtist]) {
+      songTotals[songArtist] += songTime;
+    } else {
+      songTotals[songArtist] = songTime;
+    }
+  });
+
+  for (const [artist, totalTime] of Object.entries(songTotals)) {
+    console.log(`${artist}: ${totalTime} seconds`);
+
+    if (totalTime > highestCount) {
+      highestCount = totalTime;
+      mostListenedSong = artist;
+    }
+  }
+
+  return `${mostListenedSong} with ${highestCount} seconds`;
+};
+mostArtist(2);

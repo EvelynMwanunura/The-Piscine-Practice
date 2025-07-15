@@ -5,7 +5,14 @@
 // You can't open the index.html file using a file:// URL.
 
 import { getUserIDs } from "./data.mjs";
-import { renderSongs } from "./common.mjs";
+import {
+  renderMostListenedGenre,
+  renderMostListenedSong,
+  songListenedMostOnFridayNight,
+  renderMostListenedArtist,
+  mostTime,
+  mostArtist,
+} from "./common.mjs";
 
 /*window.onload = function () {
   document.querySelector("body").innerText = `There are ${countUsers()} users`;
@@ -45,14 +52,14 @@ const renderTable = () => {
   const tableBody = document.createElement("tbody");
 
   const data = {
-    "Most listened song (count)": 0,
-    "Most listened song (time)": 0,
-    "Most listened artist (count)": 0,
-    "Most listened artist (time)": 0,
-    "Friday Night Song (count)": 0,
+    "Most listened song (count)": renderMostListenedSong(2),
+    "Most listened song (time)": mostTime(2),
+    "Most listened artist (count)": renderMostListenedArtist(2),
+    "Most listened artist (time)": mostArtist(2),
+    "Friday Night Song (count)": songListenedMostOnFridayNight(2),
     "Friday Night Song (time)": 0,
     "Longest streak song": 0,
-    "Top 3 genres": 0,
+    "Top 3 genres": renderMostListenedGenre(2),
   };
   Object.entries(data).forEach(([question, answer]) => {
     const row = document.createElement("tr");
