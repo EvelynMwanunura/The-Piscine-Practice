@@ -5,17 +5,31 @@
 // You can't open the index.html file using a file:// URL.
 
 import { getUserIDs } from "./data.mjs";
-import { renderSongs } from "./common.mjs";
+import {
+  renderMostListenedGenre,
+  renderMostListenedSong,
+  songListenedMostOnFridayNight,
+  renderMostListenedArtist,
+  mostTime,
+  mostArtist,
+  mostTimeFriday,
+  longestStreakSong,
+} from "./common.mjs";
 
 /*window.onload = function () {
   document.querySelector("body").innerText = `There are ${countUsers()} users`;
 };
 */
 const userSelect = document.getElementById("userSelect");
-const table = document.getElementById("table");
+const tableElement = document.getElementById("table");
 
 const users = () => {
   const userID = getUserIDs();
+
+  const defaultOption = document.createElement("option");
+  defaultOption.textContent = "Select a User";
+  defaultOption.value = "";
+  userSelect.appendChild(defaultOption);
 
   userID.forEach((user) => {
     const option = document.createElement("option");
@@ -24,7 +38,17 @@ const users = () => {
     userSelect.appendChild(option);
   });
 };
-const renderTable = () => {
+
+userSelect.onchange = (e) => {
+  e.preventDefault();
+  const userID = userSelect.value;
+  console.log("selected user is", userID);
+  renderTable(userID);
+};
+users();
+
+const renderTable = (userID) => {
+  tableElement.innerHTML = ""; // Clear existing content
   const table = document.createElement("table");
 
   const tableHeader = document.createElement("thead");
@@ -39,36 +63,41 @@ const renderTable = () => {
 
   tableHeader.appendChild(headerRow);
   table.appendChild(tableHeader);
-
-  document.body.appendChild(table); // Or append where needed
+  // Append the table to the tableElement
 
   const tableBody = document.createElement("tbody");
 
   const data = {
-    "Most listened song (count)": 0,
-    "Most listened song (time)": 0,
-    "Most listened artist (count)": 0,
-    "Most listened artist (time)": 0,
-    "Friday Night Song (count)": 0,
-    "Friday Night Song (time)": 0,
-    "Longest streak song": 0,
-    "Top 3 genres": 0,
+    "Most listened song (count)": renderMostListenedSong(userID),
+    "Most listened song (time)": mostTime(userID),
+    "Most listened artist (count)": renderMostListenedArtist(userID),
+    "Most listened artist (time)": mostArtist(userID),
+    "Friday Night Song (count)": songListenedMostOnFridayNight(userID),
+    "Friday Night Song (time)": mostTimeFriday(userID),
+    "Longest streak song": longestStreakSong(userID),
+    "Top 3 genres": renderMostListenedGenre(userID),
   };
   Object.entries(data).forEach(([question, answer]) => {
-    const row = document.createElement("tr");
-    const questionCell = document.createElement("td");
-    questionCell.textContent = question;
+    if (answer !== null) {
+      const row = document.createElement("tr");
+      const questionCell = document.createElement("td");
+      questionCell.textContent = question;
 
-    const answerCell = document.createElement("td");
-    answerCell.textContent = answer;
-    row.appendChild(questionCell);
-    row.appendChild(answerCell);
-    tableBody.appendChild(row);
+      const answerCell = document.createElement("td");
+      answerCell.textContent = answer;
+      row.appendChild(questionCell);
+      row.appendChild(answerCell);
+      tableBody.appendChild(row);
+    }
   });
-
+  if (tableBody.rows.length === 0) {
+    const messageRow = document.createElement("tr");
+    const messageCell = document.createElement("td");
+    messageCell.colSpan = 2;
+    messageCell.textContent = "No data available for the selected user.";
+    messageRow.appendChild(messageCell);
+    tableBody.appendChild(messageRow);
+  }
   table.appendChild(tableBody);
+  tableElement.appendChild(table);
 };
-
-renderTable();
-
-window.onload = users();
