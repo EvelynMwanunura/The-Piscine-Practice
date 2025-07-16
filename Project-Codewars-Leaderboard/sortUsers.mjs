@@ -1,11 +1,7 @@
 export const sortUsers = (users, language) => {
-  const filteredUsers = users.filter((user) => {
-    const score =
-      language && language !== ""
-        ? user.ranks?.languages?.[language]?.score
-        : user.ranks?.overall?.score;
-    return score !== undefined;
-  });
+  const filteredUsers = users.filter(
+    (user) => getUserScore(user, language) !== undefined
+  );
 
   filteredUsers.sort((a, b) => {
     const scoreA =
