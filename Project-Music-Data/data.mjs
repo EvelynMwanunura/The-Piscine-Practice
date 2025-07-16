@@ -78,7 +78,6 @@ export function getSong(songID) {
 
   return songs.find((song) => song.id === songID);
 }
-console.log(getSong("song-4"));
 
 export function getListenEvents(userID) {
   return {

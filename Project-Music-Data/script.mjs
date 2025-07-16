@@ -21,10 +21,15 @@ import {
 };
 */
 const userSelect = document.getElementById("userSelect");
-const table = document.getElementById("table");
+const tableElement = document.getElementById("table");
 
 const users = () => {
   const userID = getUserIDs();
+
+  const defaultOption = document.createElement("option");
+  defaultOption.textContent = "Select a User";
+  defaultOption.value = "";
+  userSelect.appendChild(defaultOption);
 
   userID.forEach((user) => {
     const option = document.createElement("option");
@@ -34,13 +39,16 @@ const users = () => {
   });
 };
 
-userSelect.addEventListener("change", () => {
-  const selectedUserID = parseInt(userSelect.value);
-  if (selectedUserID) {
-    renderTable(selectedUserID);
-  }
-});
+userSelect.onchange = (e) => {
+  e.preventDefault();
+  const userID = userSelect.value;
+  console.log("selected user is", userID);
+  renderTable(userID);
+};
+users();
+
 const renderTable = (userID) => {
+  tableElement.innerHTML = ""; // Clear existing content
   const table = document.createElement("table");
 
   const tableHeader = document.createElement("thead");
@@ -55,8 +63,7 @@ const renderTable = (userID) => {
 
   tableHeader.appendChild(headerRow);
   table.appendChild(tableHeader);
-
-  document.body.appendChild(table); // Or append where needed
+  // Append the table to the tableElement
 
   const tableBody = document.createElement("tbody");
 
@@ -71,20 +78,26 @@ const renderTable = (userID) => {
     "Top 3 genres": renderMostListenedGenre(userID),
   };
   Object.entries(data).forEach(([question, answer]) => {
-    const row = document.createElement("tr");
-    const questionCell = document.createElement("td");
-    questionCell.textContent = question;
+    if (answer !== null) {
+      const row = document.createElement("tr");
+      const questionCell = document.createElement("td");
+      questionCell.textContent = question;
 
-    const answerCell = document.createElement("td");
-    answerCell.textContent = answer;
-    row.appendChild(questionCell);
-    row.appendChild(answerCell);
-    tableBody.appendChild(row);
+      const answerCell = document.createElement("td");
+      answerCell.textContent = answer;
+      row.appendChild(questionCell);
+      row.appendChild(answerCell);
+      tableBody.appendChild(row);
+    }
   });
-
+  if (tableBody.rows.length === 0) {
+    const messageRow = document.createElement("tr");
+    const messageCell = document.createElement("td");
+    messageCell.colSpan = 2;
+    messageCell.textContent = "No data available for the selected user.";
+    messageRow.appendChild(messageCell);
+    tableBody.appendChild(messageRow);
+  }
   table.appendChild(tableBody);
+  tableElement.appendChild(table);
 };
-
-renderTable();
-
-window.onload = users();
