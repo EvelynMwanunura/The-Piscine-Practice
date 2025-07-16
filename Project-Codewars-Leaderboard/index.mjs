@@ -8,6 +8,7 @@
 }*/
 
 import { getValidUsers } from "./getValidUsers.mjs";
+import { sortUsers, getUserScore } from "./sortUsers.mjs";
 
 const usernameInput = document.getElementById("username");
 const fetchButton = document.getElementById("btn");
@@ -40,35 +41,14 @@ const renderTable = async (users, language = selectedLanguage) => {
     .getElementsByTagName("tbody")[0];
   table.innerHTML = ""; // Clear existing rows
 
-  const filteredUsers =
-    language && language !== ""
-      ? users.filter(
-          (user) => user.ranks?.languages?.[language]?.score !== undefined
-        )
-      : users;
-
-  filteredUsers.sort((a, b) => {
-    const scoreA =
-      language && language !== ""
-        ? a.ranks.languages[language].score
-        : a.ranks.overall.score;
-    const scoreB =
-      language && language !== ""
-        ? b.ranks.languages[language].score
-        : b.ranks.overall.score;
-
-    return scoreB - scoreA; // descending order
-  });
+  const filteredUsers = sortUsers(users, language);
 
   filteredUsers.forEach((user, index) => {
     const row = table.insertRow();
 
     row.insertCell(0).textContent = user.username || "N/A";
     row.insertCell(1).textContent = user.clan || "N/A";
-    const score =
-      language && language !== ""
-        ? user.ranks?.languages?.[language]?.score ?? "N/A"
-        : user.ranks?.overall?.score ?? "N/A";
+    const score = getUserScore(user, language) || "N/A";
     row.insertCell(2).textContent = index === 0 ? `${score} 🎉🎉` : score;
   });
 };
