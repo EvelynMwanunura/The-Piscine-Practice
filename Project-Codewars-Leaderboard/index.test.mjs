@@ -12,6 +12,7 @@ import assert from "node:assert";
 import nock from "nock";
 import { getUsers } from "./fetchAPI.mjs";
 import { getValidUsers } from "./getValidUsers.mjs";
+import { sortUsers } from "./sortUsers.mjs";
 
 global.fetch = fetch;
 
@@ -65,4 +66,33 @@ test("Get valid users and filter out invalid users", async () => {
 
   assert.ok(validScope.isDone(), "Valid user request was  not made");
   assert.ok(invalidScope.isDone(), "Invalid user request was not made");
+});
+
+const users = [
+  {
+    username: "user1",
+    clan: "clan1",
+    ranks: {
+      overall: { score: 200 },
+      languages: { javascript: { score: 150 } },
+    },
+  },
+  {
+    username: "user2",
+    clan: "clan2",
+    ranks: {
+      overall: { score: 300 },
+      languages: { javascript: { score: 250 } },
+    },
+  },
+];
+test("sortUsers sorts users by overall score", () => {
+  const sortedUsers = sortUsers(users, "");
+  assert.strictEqual(sortedUsers[0].username, "user2");
+  assert.strictEqual(sortedUsers[1].username, "user1");
+});
+test("sortUsers sorts users by language score", () => {
+  const sortedUsers = sortUsers(users, "javascript");
+  assert.strictEqual(sortedUsers[0].username, "user2");
+  assert.strictEqual(sortedUsers[1].username, "user1");
 });
