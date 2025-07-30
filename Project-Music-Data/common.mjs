@@ -79,11 +79,15 @@ export const renderMostListenedGenre = (userID) => {
     return acc;
   }, {});
 
-  return Object.entries(genreCount)
+  const sortedGenres = Object.entries(genreCount)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
-    .map(([genre]) => genre)
-    .join(", ");
+    .map(([genre]) => genre);
+
+  return {
+    genres: sortedGenres.join(", "),
+    count: Object.keys(genreCount).length,
+  };
 };
 
 export const renderMostListenedSong = (userID) => {

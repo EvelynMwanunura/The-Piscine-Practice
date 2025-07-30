@@ -17,10 +17,6 @@ import {
   commonSong,
 } from "./common.mjs";
 
-/*window.onload = function () {
-  document.querySelector("body").innerText = `There are ${countUsers()} users`;
-};
-*/
 const userSelect = document.getElementById("userSelect");
 const tableElement = document.getElementById("table");
 
@@ -49,7 +45,7 @@ userSelect.onchange = (e) => {
 users();
 
 const renderTable = (userID) => {
-  tableElement.innerHTML = ""; // Clear existing content
+  tableElement.innerHTML = "";
   const table = document.createElement("table");
 
   const tableHeader = document.createElement("thead");
@@ -63,10 +59,10 @@ const renderTable = (userID) => {
   });
 
   tableHeader.appendChild(headerRow);
-  //table.appendChild(tableHeader);
-  // Append the table to the tableElement
 
   const tableBody = document.createElement("tbody");
+
+  const mostGenres = renderMostListenedGenre(userID);
 
   const data = {
     "Most listened song (count)": renderMostListenedSong(userID),
@@ -75,10 +71,16 @@ const renderTable = (userID) => {
     "Most listened artist (time)": mostArtist(userID),
     "Friday Night Song (count)": songListenedMostOnFridayNight(userID),
     "Friday Night Song (time)": mostTimeFriday(userID),
-    "Song listened to everytime user listened to music": commonSong(userID),
+    "Everyday songs": commonSong(userID),
     "Longest streak song": longestStreakSong(userID),
-    "Top 3 genres": renderMostListenedGenre(userID),
   };
+
+  if (mostGenres && mostGenres.genres) {
+    const genreLabel =
+      mostGenres.count >= 3 ? "Top 3 genres" : "Most listened genre(s)";
+    data[genreLabel] = mostGenres.genres;
+  }
+
   let hasData = false;
   Object.entries(data).forEach(([question, answer]) => {
     if (answer !== null) {
@@ -94,6 +96,7 @@ const renderTable = (userID) => {
       tableBody.appendChild(row);
     }
   });
+
   if (hasData) {
     table.appendChild(tableHeader);
   } else {
@@ -104,6 +107,7 @@ const renderTable = (userID) => {
     messageRow.appendChild(messageCell);
     tableBody.appendChild(messageRow);
   }
+
   table.appendChild(tableBody);
   tableElement.appendChild(table);
 };
