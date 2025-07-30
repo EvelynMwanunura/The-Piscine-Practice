@@ -1,68 +1,89 @@
 import { getSong, getListenEvents } from "./data.mjs";
 
+const getFullSongData = (userID) => {
+  const events = getListenEvents(userID) || [];
+  const songMap = {};
+  const fullSongs = [];
+
+  events.forEach(({ song_id }) => {
+    if (!songMap[song_id]) {
+      songMap[song_id] = getSong(song_id);
+    }
+    fullSongs.push(songMap[song_id]);
+  });
+
+  return fullSongs;
+};
+
 export const renderSongs = (userID) => {
-  const songsUserListenedTo = getListenEvents(userID) || [];
-  if (!songsUserListenedTo.length) {
-    return null;
-  } else {
-    let listenedSongs = [];
-    songsUserListenedTo.forEach((song) => {
-      listenedSongs.push(getSong(song.song_id));
-    });
-    return listenedSongs;
-  }
+  const fullSongs = getFullSongData(userID);
+  return fullSongs.length ? fullSongs : null;
+};
+/////////////////////////////////////////////////////////
+const renderSongsByDate = (userID) => {
+  const songs = getListenEvents(userID);
+
+  return songs.reduce((acc, song) => {
+    const date = song.timestamp.split("T")[0];
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(song);
+    return acc;
+  }, {});
+};
+
+export const commonSong = (userID) => {
+  const songsByDate = renderSongsByDate(userID);
+
+  const dailySong = Object.values(songsByDate).map(
+    (songs) => new Set(songs.map((song) => song.song_id))
+  );
+
+  if (dailySong.length === 0) return null;
+
+  const commonSong = [
+    ...dailySong.reduce((common, daySong) => {
+      return new Set([...common].filter((songID) => daySong.has(songID)));
+    }),
+  ];
+
+  if (commonSong.length === 0) return null;
+
+  const songsWithArtist = commonSong.map((songID) => {
+    const song = getSong(songID);
+    return `${song.artist} - ${song.title}`;
+  });
+
+  return songsWithArtist;
 };
 
 export const renderMostListenedArtist = (userID) => {
-  let listenedArtists = {};
+  const songs = renderSongs(userID);
+  if (!songs) return null;
 
-  const songsListenedTo = renderSongs(userID);
-  if (songsListenedTo === null) {
-    return null;
-  } else {
-    songsListenedTo.map((song) => {
-      listenedArtists[song.artist] = (listenedArtists[song.artist] || 0) + 1;
-    });
+  const count = songs.reduce((acc, song) => {
+    acc[song.artist] = (acc[song.artist] || 0) + 1;
+    return acc;
+  }, {});
 
-    let mostMostListenedArtist = "";
-    let highestCount = 0;
-
-    for (let artist in listenedArtists) {
-      if (listenedArtists[artist] > highestCount) {
-        highestCount = listenedArtists[artist];
-        mostMostListenedArtist = artist;
-      }
-    }
-
-    return mostMostListenedArtist;
-  }
+  return Object.entries(count).reduce((a, b) => (b[1] > a[1] ? b : a))[0];
 };
 
 export const renderMostListenedGenre = (userID) => {
-  let listenedGenres = {};
+  const songs = renderSongs(userID);
+  if (!songs) return null;
 
-  const songsListenedTo = renderSongs(userID) || [];
-  if (!songsListenedTo || songsListenedTo.length === 0) {
-    return null;
-  } else {
-    songsListenedTo.map((song) => {
-      listenedGenres[song.genre] = (listenedGenres[song.genre] || 0) + 1;
-    });
+  const genreCount = songs.reduce((acc, song) => {
+    acc[song.genre] = (acc[song.genre] || 0) + 1;
+    return acc;
+  }, {});
 
-    let mostListenedGenres = [];
-
-    for (let genre in listenedGenres) {
-      mostListenedGenres.push({ genre, count: listenedGenres[genre] });
-    }
-    mostListenedGenres.sort((a, b) => b.count - a.count).slice(0, 3);
-
-    if (mostListenedGenres.length > 0) {
-      return mostListenedGenres
-        .map((item) => item.genre)
-        .slice(0, 3)
-        .join(", ");
-    } else return null;
-  }
+  return Object.entries(genreCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([genre]) => genre)
+    .join(", ");
 };
 
 export const renderMostListenedSong = (userID) => {
@@ -85,109 +106,64 @@ export const renderMostListenedSong = (userID) => {
       }
     }
 
-    return getSong(mostListenedSongID).title;
+    return `${getSong(mostListenedSongID).artist}: ${
+      getSong(mostListenedSongID).title
+    }`;
   }
+};
+
+const getFridayNightEvents = (userID) => {
+  const events = getListenEvents(userID) || [];
+  return events.filter((event) => {
+    const date = new Date(event.timestamp);
+    const day = date.getDay();
+    const hour = date.getHours();
+    return (day === 5 && hour >= 17) || (day === 6 && hour < 4);
+  });
 };
 
 export const songListenedMostOnFridayNight = (userID) => {
-  const songsUserListenedTo = getListenEvents(userID);
-  if (!songsUserListenedTo.length) {
-    return null;
-  } else {
-    const formattedEvents = songsUserListenedTo.map((event) => {
-      const date = new Date(event.timestamp);
-      return { ...event, dateObject: date };
-    });
+  const fridaySongs = getFridayNightEvents(userID);
+  if (!fridaySongs.length) return null;
 
-    let fridaySongs = formattedEvents.filter((event) => {
-      const date = new Date(event.timestamp);
-      const day = date.getDay();
-      const hour = date.getHours();
+  const count = fridaySongs.reduce((acc, event) => {
+    acc[event.song_id] = (acc[event.song_id] || 0) + 1;
+    return acc;
+  }, {});
 
-      return (day === 5 && hour >= 17) || (day === 6 && hour < 4);
-    });
-    if (fridaySongs.length === 0) {
-      return null;
-    }
+  const mostSongID = Object.entries(count).reduce((a, b) =>
+    b[1] > a[1] ? b : a
+  )[0];
+  const song = getSong(mostSongID);
+  return `${song.artist} – ${song.title}` || null;
+};
 
-    let mostSongListenedOnFriday = {};
-    for (let song of fridaySongs) {
-      mostSongListenedOnFriday[song.song_id] =
-        (mostSongListenedOnFriday[song.song_id] || 0) + 1;
-    }
-    let mostSongListenedOnFridayID = "";
-    let highestCount = 0;
+const getMaxDuration = (songs, key) => {
+  const totals = {};
+  songs.forEach((song) => {
+    const k = song[key];
+    totals[k] = (totals[k] || 0) + song.duration_seconds;
+  });
 
-    for (let songID in mostSongListenedOnFriday) {
-      if (mostSongListenedOnFriday[songID] > highestCount) {
-        highestCount = mostSongListenedOnFriday[songID];
-        mostSongListenedOnFridayID = songID;
-      }
-    }
-    return getSong(mostSongListenedOnFridayID).title || null;
-  }
+  return Object.entries(totals).reduce((a, b) => (b[1] > a[1] ? b : a));
 };
 
 export const mostTime = (userID) => {
-  const listenedSongs = renderSongs(userID);
-  if (!listenedSongs || listenedSongs.length === 0) {
-    return null;
-  } else {
-    const songTotals = {};
-    let highestCount = 0;
-    let mostListenedSong = "";
+  const songs = renderSongs(userID);
+  if (!songs || songs.length === 0) return null;
 
-    listenedSongs.forEach((song) => {
-      const songTime = song.duration_seconds;
-      const songTitle = song.title;
+  const songWithMaxDuration = songs.reduce((max, song) =>
+    song.duration > max.duration ? song : max
+  );
 
-      if (songTotals[songTitle]) {
-        songTotals[songTitle] += songTime;
-      } else {
-        songTotals[songTitle] = songTime;
-      }
-    });
-
-    for (const [title, totalTime] of Object.entries(songTotals)) {
-      if (totalTime > highestCount) {
-        highestCount = totalTime;
-        mostListenedSong = title;
-      }
-    }
-
-    return `${mostListenedSong} with ${highestCount} seconds`;
-  }
+  return `${songWithMaxDuration.artist} - ${songWithMaxDuration.title}`;
 };
 
 export const mostArtist = (userID) => {
-  const listenedSongs = renderSongs(userID);
-  if (!listenedSongs || listenedSongs.length === 0) {
-    return null;
-  } else {
-    const songTotals = {};
-    let highestCount = 0;
-    let mostListenedSong = "";
-
-    listenedSongs.forEach((song) => {
-      const songTime = song.duration_seconds;
-      const songArtist = song.artist;
-
-      if (songTotals[songArtist]) {
-        songTotals[songArtist] += songTime;
-      } else {
-        songTotals[songArtist] = songTime;
-      }
-    });
-
-    for (const [artist, totalTime] of Object.entries(songTotals)) {
-      if (totalTime > highestCount) {
-        highestCount = totalTime;
-        mostListenedSong = artist;
-      }
-    }
-
-    return `${mostListenedSong} with ${highestCount} seconds`;
-  }
+  const songs = renderSongs(userID);
+  if (!songs) return null;
+  const [artist, time] = getMaxDuration(songs, "artist");
+  return artist;
 };
 
 export const mostTimeFriday = (userID) => {
@@ -236,35 +212,36 @@ export const mostTimeFriday = (userID) => {
         }
       }
 
-      return `Friday ${mostListenedSong} with ${highestCount} seconds` || null;
+      const songObj = listenedSongs.find((s) => s.title === mostListenedSong);
+      if (!songObj) return null;
+      return `${songObj.artist} – ${songObj.title} `;
     }
   }
 };
 
 export const longestStreakSong = (userID) => {
-  const listenedSongs = renderSongs(userID);
-  if (!listenedSongs || listenedSongs.length === 0) {
-    return null;
-  } else {
-    let longestStreak = [];
-    listenedSongs.map((song) => {
-      const songTitle = song.title;
-      longestStreak.push(songTitle);
-    });
+  const songs = renderSongs(userID);
+  if (!songs) return null;
 
-    let longestStreakCount = 0;
-    let currentStreakCount = 0;
+  let maxStreak = 1;
+  let currentStreak = 1;
+  let songTitle = songs[0].title;
+  let currentSong = songTitle;
 
-    for (let i = 0; i < longestStreak.length; i++) {
-      if (longestStreak[i] === longestStreak[i + 1]) {
-        currentStreakCount++;
-      } else {
-        if (currentStreakCount > longestStreakCount) {
-          longestStreakCount = currentStreakCount;
-        }
-        currentStreakCount = 0;
-      }
+  for (let i = 1; i < songs.length; i++) {
+    if (songs[i].title === currentSong) {
+      currentStreak++;
+    } else {
+      currentSong = songs[i].title;
+      currentStreak = 1;
     }
-    return `${longestStreak[longestStreakCount]} with a streak of ${longestStreakCount} times`;
+
+    if (currentStreak > maxStreak) {
+      maxStreak = currentStreak;
+      songTitle = currentSong;
+    }
   }
+  const songObj = songs.find((s) => s.title === songTitle);
+  if (!songObj) return `${songTitle} (${maxStreak} times)`;
+  return `${songObj.artist} – ${songObj.title} `;
 };

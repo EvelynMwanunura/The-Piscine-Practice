@@ -14,6 +14,7 @@ import {
   mostArtist,
   mostTimeFriday,
   longestStreakSong,
+  commonSong,
 } from "./common.mjs";
 
 /*window.onload = function () {
@@ -62,7 +63,7 @@ const renderTable = (userID) => {
   });
 
   tableHeader.appendChild(headerRow);
-  table.appendChild(tableHeader);
+  //table.appendChild(tableHeader);
   // Append the table to the tableElement
 
   const tableBody = document.createElement("tbody");
@@ -74,11 +75,14 @@ const renderTable = (userID) => {
     "Most listened artist (time)": mostArtist(userID),
     "Friday Night Song (count)": songListenedMostOnFridayNight(userID),
     "Friday Night Song (time)": mostTimeFriday(userID),
+    "Song listened to everytime user listened to music": commonSong(userID),
     "Longest streak song": longestStreakSong(userID),
     "Top 3 genres": renderMostListenedGenre(userID),
   };
+  let hasData = false;
   Object.entries(data).forEach(([question, answer]) => {
     if (answer !== null) {
+      hasData = true;
       const row = document.createElement("tr");
       const questionCell = document.createElement("td");
       questionCell.textContent = question;
@@ -90,7 +94,9 @@ const renderTable = (userID) => {
       tableBody.appendChild(row);
     }
   });
-  if (tableBody.rows.length === 0) {
+  if (hasData) {
+    table.appendChild(tableHeader);
+  } else {
     const messageRow = document.createElement("tr");
     const messageCell = document.createElement("td");
     messageCell.colSpan = 2;
