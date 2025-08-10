@@ -15,6 +15,8 @@ const getFullSongData = (userID) => {
   return fullSongs;
 };
 
+// What does this function do? The word "render" in its name suggests it's showing something on screen? I don't think it is?
+// (Same question for several of the functions in this file.)
 export const renderSongs = (userID) => {
   const fullSongs = getFullSongData(userID);
   return fullSongs.length ? fullSongs : null;
@@ -42,8 +44,12 @@ export const commonSong = (userID) => {
 
   if (dailySong.length === 0) return null;
 
+  // In general I'd expect a variable named commonSong to contain a single value (a "scalar"), or a variable which contained an array to be named plural, like commonSongs.
+  // This is a useful convention to help people reading the code to understand whether you have a scalar or a multi-item value.
   const commonSong = [
     ...dailySong.reduce((common, daySong) => {
+      // If you have two Sets, this operation is called the "intersection" - finding the Set which has the overlap of the two sets.
+      // Can you work out how to implement this check more simply, using just Sets and no extra arrays?
       return new Set([...common].filter((songID) => daySong.has(songID)));
     }),
   ];
@@ -84,6 +90,8 @@ export const renderMostListenedGenre = (userID) => {
     .slice(0, 3)
     .map(([genre]) => genre);
 
+  // We often (though it isn't required) split up the "find the things" logic in one function, and the "display the things" in another.
+  // That would mean here we'd return an array of top genres, and when we are displaying things on the page we'd do the joining into a string, and the counting.
   return {
     genres: sortedGenres.join(", "),
     count: Object.keys(genreCount).length,
@@ -110,6 +118,7 @@ export const renderMostListenedSong = (userID) => {
       }
     }
 
+    // This string interpolation is quite hard to read, and also repeats a function call twice. Can you think how to simplify this?
     return `${getSong(mostListenedSongID).artist}: ${
       getSong(mostListenedSongID).title
     }`;
@@ -126,6 +135,8 @@ const getFridayNightEvents = (userID) => {
   });
 };
 
+// You have several nearly identical functions here - renderMostListenedArtist, renderMostListenedSong, songListenedMostOnFridayNight are all doing basically the same thing.
+// Can you think how to make them less repetitive?
 export const songListenedMostOnFridayNight = (userID) => {
   const fridaySongs = getFridayNightEvents(userID);
   if (!fridaySongs.length) return null;
