@@ -49,7 +49,7 @@ export const commonSong = (userID) => {
 
   // In general I'd expect a variable named commonSong to contain a single value (a "scalar"), or a variable which contained an array to be named plural, like commonSongs.
   // This is a useful convention to help people reading the code to understand whether you have a scalar or a multi-item value.
-  const commonSong = [
+  const commonSongs = [
     ...dailySong.reduce((common, daySong) => {
       // If you have two Sets, this operation is called the "intersection" - finding the Set which has the overlap of the two sets.
       // Can you work out how to implement this check more simply, using just Sets and no extra arrays?
@@ -57,26 +57,14 @@ export const commonSong = (userID) => {
     }),
   ];
 
-  if (commonSong.length === 0) return null;
+  if (commonSongs.length === 0) return null;
 
-  const songsWithArtist = commonSong.map((songID) => {
+  const songsWithArtist = commonSongs.map((songID) => {
     const song = getSong(songID);
     return `${song.artist} - ${song.title}`;
   });
 
   return songsWithArtist;
-};
-
-export const renderMostListenedArtist = (userID) => {
-  const songs = fetchSongsForUser(userID);
-  if (!songs) return null;
-
-  const count = songs.reduce((acc, song) => {
-    acc[song.artist] = (acc[song.artist] || 0) + 1;
-    return acc;
-  }, {});
-
-  return Object.entries(count).reduce((a, b) => (b[1] > a[1] ? b : a))[0];
 };
 
 export const renderMostListenedGenre = (userID) => {
@@ -100,33 +88,7 @@ export const renderMostListenedGenre = (userID) => {
     count: Object.keys(genreCount).length,
   };
 };
-
-export const renderMostListenedSong = (userID) => {
-  const listenedSongs = fetchSongsForUser(userID) || [];
-  if (!listenedSongs || listenedSongs.length === 0) {
-    return null;
-  } else {
-    let mostListenedSong = {};
-    listenedSongs.forEach((song) => {
-      mostListenedSong[song.id] = (mostListenedSong[song.id] || 0) + 1;
-    });
-
-    let mostListenedSongID = "";
-    let highestCount = 0;
-
-    for (let songID in mostListenedSong) {
-      if (mostListenedSong[songID] > highestCount) {
-        highestCount = mostListenedSong[songID];
-        mostListenedSongID = songID;
-      }
-    }
-
-    // This string interpolation is quite hard to read, and also repeats a function call twice. Can you think how to simplify this?
-    return `${getSong(mostListenedSongID).artist}: ${
-      getSong(mostListenedSongID).title
-    }`;
-  }
-};
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const getFridayNightEvents = (userID) => {
   const events = getListenEvents(userID) || [];
@@ -140,20 +102,34 @@ const getFridayNightEvents = (userID) => {
 
 // You have several nearly identical functions here - renderMostListenedArtist, renderMostListenedSong, songListenedMostOnFridayNight are all doing basically the same thing.
 // Can you think how to make them less repetitive?
-export const songListenedMostOnFridayNight = (userID) => {
-  const fridaySongs = getFridayNightEvents(userID);
-  if (!fridaySongs.length) return null;
 
-  const count = fridaySongs.reduce((acc, event) => {
+export const renderMostListenedSong = (userID, getEvents = getListenEvents) => {
+  const events = getEvents(userID);
+  if (!events.length) return null;
+  const count = events.reduce((acc, event) => {
     acc[event.song_id] = (acc[event.song_id] || 0) + 1;
     return acc;
   }, {});
-
   const mostSongID = Object.entries(count).reduce((a, b) =>
     b[1] > a[1] ? b : a
   )[0];
   const song = getSong(mostSongID);
-  return `${song.artist} – ${song.title}` || null;
+  return song ? `${song.artist} – ${song.title}` : null;
+};
+
+export const songListenedMostOnFridayNight = (userID) => {
+  return renderMostListenedSong(userID, getFridayNightEvents);
+};
+
+export const renderMostListenedArtist = (
+  userID,
+  getEvents = getListenEvents
+) => {
+  const mostListenedSong = renderMostListenedSong(userID, getEvents);
+  if (!mostListenedSong) return null;
+
+  const [artist] = mostListenedSong.split(" – ");
+  return artist;
 };
 
 const getMaxDuration = (songs, key) => {
