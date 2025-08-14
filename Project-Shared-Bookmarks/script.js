@@ -43,8 +43,15 @@ userSelect.onchange = (e) => {
 };
 
 const getUserData = (userID) => {
-  const userData = getData(userID);
-  if (!userData) {
+  userDataSection.innerHTML = "";
+  let userData = getData(userID);
+
+  if (!userID || userID.trim() === "") {
+    userDataSection.innerHTML = "Please select a user.";
+    return;
+  }
+
+  if (!userData || userData.length === 0) {
     userDataSection.innerHTML = "No data for user";
   } else userDataSection.innerHTML = userData;
 };
