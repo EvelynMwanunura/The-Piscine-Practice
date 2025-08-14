@@ -4,7 +4,7 @@
 // Note that when running locally, in order to open a web page which uses modules, you must serve the directory over HTTP e.g. with https://www.npmjs.com/package/http-server
 // You can't open the index.html file using a file:// URL.
 
-import { getUserIds } from "./storage.js";
+import { getUserIds, getData, setData, clearData } from "./storage.js";
 
 /*window.onload = function () {
   const users = getUserIds();
@@ -12,6 +12,7 @@ import { getUserIds } from "./storage.js";
 };*/
 
 const userSelect = document.getElementById("userSelect");
+const userDataSection = document.getElementById("userData");
 
 const getUsers = () => {
   const users = getUserIds();
@@ -27,5 +28,18 @@ const getUsers = () => {
     userSelect.appendChild(options);
   });
 };
-
 getUsers();
+
+userSelect.onchange = (e) => {
+  e.preventDefault();
+
+  const userID = userSelect.value;
+  getUserData(userID);
+};
+
+const getUserData = (userID) => {
+  const userData = getData(userID);
+  if (!userData) {
+    userDataSection.innerHTML = "No data for user";
+  } else userDataSection.innerHTML = userData;
+};
