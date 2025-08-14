@@ -17,10 +17,13 @@ const getFullSongData = (userID) => {
 
 // What does this function do? The word "render" in its name suggests it's showing something on screen? I don't think it is?
 // (Same question for several of the functions in this file.)
-export const renderSongs = (userID) => {
+
+//the function retrieves and returns  the songs for selected  user, I have changed the name.
+export const fetchSongsForUser = (userID) => {
   const fullSongs = getFullSongData(userID);
   return fullSongs.length ? fullSongs : null;
 };
+
 /////////////////////////////////////////////////////////
 const renderSongsByDate = (userID) => {
   const songs = getListenEvents(userID);
@@ -65,7 +68,7 @@ export const commonSong = (userID) => {
 };
 
 export const renderMostListenedArtist = (userID) => {
-  const songs = renderSongs(userID);
+  const songs = fetchSongsForUser(userID);
   if (!songs) return null;
 
   const count = songs.reduce((acc, song) => {
@@ -77,7 +80,7 @@ export const renderMostListenedArtist = (userID) => {
 };
 
 export const renderMostListenedGenre = (userID) => {
-  const songs = renderSongs(userID);
+  const songs = fetchSongsForUser(userID);
   if (!songs) return null;
 
   const genreCount = songs.reduce((acc, song) => {
@@ -99,7 +102,7 @@ export const renderMostListenedGenre = (userID) => {
 };
 
 export const renderMostListenedSong = (userID) => {
-  const listenedSongs = renderSongs(userID) || [];
+  const listenedSongs = fetchSongsForUser(userID) || [];
   if (!listenedSongs || listenedSongs.length === 0) {
     return null;
   } else {
@@ -164,7 +167,7 @@ const getMaxDuration = (songs, key) => {
 };
 
 export const mostTime = (userID) => {
-  const songs = renderSongs(userID);
+  const songs = fetchSongsForUser(userID);
   if (!songs || songs.length === 0) return null;
 
   const songWithMaxDuration = songs.reduce((max, song) =>
@@ -175,7 +178,7 @@ export const mostTime = (userID) => {
 };
 
 export const mostArtist = (userID) => {
-  const songs = renderSongs(userID);
+  const songs = fetchSongsForUser(userID);
   if (!songs) return null;
   const [artist, time] = getMaxDuration(songs, "artist");
   return artist;
@@ -235,7 +238,7 @@ export const mostTimeFriday = (userID) => {
 };
 
 export const longestStreakSong = (userID) => {
-  const songs = renderSongs(userID);
+  const songs = fetchSongsForUser(userID);
   if (!songs) return null;
 
   let maxStreak = 1;
