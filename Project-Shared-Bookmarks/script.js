@@ -6,7 +6,26 @@
 
 import { getUserIds } from "./storage.js";
 
-window.onload = function () {
+/*window.onload = function () {
   const users = getUserIds();
   document.querySelector("body").innerText = `There are ${users.length} users`;
+};*/
+
+const userSelect = document.getElementById("userSelect");
+
+const getUsers = () => {
+  const users = getUserIds();
+  const defaultOption = document.createElement("option");
+  defaultOption.textContent = "Select user:";
+  defaultOption.value = " ";
+  userSelect.appendChild(defaultOption);
+
+  users.forEach((user) => {
+    const options = document.createElement("option");
+    options.value = user;
+    options.textContent = `User: ${user}`;
+    userSelect.appendChild(options);
+  });
 };
+
+getUsers();
