@@ -147,7 +147,7 @@ export const mostTime = (userID) => {
   if (!songs || songs.length === 0) return null;
 
   const songWithMaxDuration = songs.reduce((max, song) =>
-    song.duration > max.duration ? song : max
+    song.duration_seconds > max.duration_seconds ? song : max
   );
 
   return `${songWithMaxDuration.artist} - ${songWithMaxDuration.title}`;
