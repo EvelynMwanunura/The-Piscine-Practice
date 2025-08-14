@@ -13,6 +13,11 @@ import { getUserIds, getData, setData, clearData } from "./storage.js";
 
 const userSelect = document.getElementById("userSelect");
 const userDataSection = document.getElementById("userData");
+const inputForm = document.getElementById("userForm");
+const bookmarkTitle = document.getElementById("title");
+const bookmarkDescription = document.getElementById("description");
+const bookmarkUrl = document.getElementById("url");
+const button = document.getElementById("submitBtn");
 
 const getUsers = () => {
   const users = getUserIds();
