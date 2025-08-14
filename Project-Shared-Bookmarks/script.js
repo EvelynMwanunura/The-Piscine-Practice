@@ -32,15 +32,13 @@ const getUsers = () => {
     options.textContent = `User: ${user}`;
     userSelect.appendChild(options);
   });
+  userSelect.onchange = (e) => {
+    e.preventDefault();
+    const userID = userSelect.value;
+    getUserData(userID);
+  };
 };
 getUsers();
-
-userSelect.onchange = (e) => {
-  e.preventDefault();
-
-  const userID = userSelect.value;
-  getUserData(userID);
-};
 
 const getUserData = (userID) => {
   userDataSection.innerHTML = "";
@@ -53,5 +51,63 @@ const getUserData = (userID) => {
 
   if (!userData || userData.length === 0) {
     userDataSection.innerHTML = "No data for user";
-  } else userDataSection.innerHTML = userData;
+  }
+
+  console.log(userData);
+
+  if (!Array.isArray(userData)) {
+    userData = [userData];
+  }
+  const ulElement = document.createElement("ul");
+  userData.forEach((data) => {
+    const liElement = document.createElement("li");
+    if (data.url) {
+      const link = document.createElement("a");
+      link.href = data.url;
+      link.textContent = data.title || "Untitled";
+      link.target = "_blank"; // Opens in new tab
+      liElement.appendChild(link);
+    } else {
+      liElement.textContent = data.title || "Untitled";
+    }
+
+    const extraInfo = document.createElement("span");
+    extraInfo.textContent = ` — ${
+      data.description || ""
+    } (created on ${new Date(data.date).toLocaleString()})`;
+    liElement.appendChild(extraInfo);
+    ulElement.appendChild(liElement);
+  });
+
+  userDataSection.appendChild(ulElement);
 };
+
+button.addEventListener("click", () => {
+  let userID = userSelect.value;
+
+  if (!userID.trim()) {
+    alert("Please select a user first.");
+    return;
+  }
+
+  const data = {
+    date: Date.now(),
+    title: bookmarkTitle.value,
+    url: bookmarkUrl.value,
+    description: bookmarkDescription.value,
+  };
+
+  let bookmarks = getData(userID) || [];
+  bookmarks.push(data);
+
+  setData(userID, bookmarks);
+
+  console.log("new data added ", data);
+  console.log("user data ", bookmarks);
+
+  getUserData(userID);
+
+  /*bookmarkTitle.value = "";
+  bookmarkDescription.value = "";
+  bookmarkUrl.value = "";*/
+});
