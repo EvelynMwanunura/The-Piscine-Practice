@@ -75,10 +75,11 @@ const renderTable = (userID) => {
     "Longest streak song": longestStreakSong(userID),
   };
 
-  if (mostGenres && mostGenres.genres) {
+  if (mostGenres) {
     const genreLabel =
-      mostGenres.count >= 3 ? "Top 3 genres" : "Most listened genre(s)";
-    data[genreLabel] = mostGenres.genres;
+      mostGenres.length >= 3 ? "Top 3 genres" : "Most listened genre(s)";
+
+    data[genreLabel] = mostGenres;
   }
 
   let hasData = false;

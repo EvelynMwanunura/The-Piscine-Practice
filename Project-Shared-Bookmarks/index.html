@@ -4,5 +4,17 @@
     <script type="module" src="script.js"></script>
   </head>
   <body>
+    <h1>Shared Bookmarks</h1>
+    <label
+      >Select User:
+      <select id="userSelect"></select
+    ></label>
+    <form id="userForm">
+      <label>Enter the URL<input type="url" id="url" /></label>
+      <label>Enter title <input type="text" id="title" /></label>
+      <label>Enter description<input type="textarea" id="description" /></label>
+      <input type="submit" value="Submit" id="submitBtn" />
+    </form>
+    <div id="userData"></div>
   </body>
 </html>
