@@ -38,7 +38,7 @@ const groupSongsByDateOfListen = (userID) => {
   }, {});
 };
 
-export const commonSong = (userID) => {
+export const getSongPlayedEveryday = (userID) => {
   const songsByDate = groupSongsByDateOfListen(userID);
 
   const dailySong = Object.values(songsByDate).map(
@@ -117,7 +117,10 @@ const getFridayNightEvents = (userID) => {
 // You have several nearly identical functions here - renderMostListenedArtist, renderMostListenedSong, songListenedMostOnFridayNight are all doing basically the same thing.
 // Can you think how to make them less repetitive?
 
-export const renderMostListenedSong = (userID, getEvents = getListenEvents) => {
+export const getMostListenedSongByCount = (
+  userID,
+  getEvents = getListenEvents
+) => {
   const events = getEvents(userID);
   if (!events.length) return null;
   const count = events.reduce((acc, event) => {
@@ -132,10 +135,10 @@ export const renderMostListenedSong = (userID, getEvents = getListenEvents) => {
 };
 
 export const songListenedMostOnFridayNight = (userID) => {
-  return renderMostListenedSong(userID, getFridayNightEvents);
+  return getMostListenedSongByCount(userID, getFridayNightEvents);
 };
 
-export const renderMostListenedArtist = (userID) => {
+export const getMostListenedArtistByCount = (userID) => {
   const songs = fetchSongsForUser(userID);
   if (!songs) return null;
 
@@ -161,7 +164,7 @@ const getMaxDuration = (songs, key) => {
   return Object.entries(totals).reduce((a, b) => (b[1] > a[1] ? b : a));
 };
 
-export const mostTime = (userID) => {
+export const getMostListenedSongByTime = (userID) => {
   const songs = fetchSongsForUser(userID);
   if (!songs || songs.length === 0) return null;
 
@@ -170,14 +173,14 @@ export const mostTime = (userID) => {
   return song ? `${song.artist} - ${song.title}` : null;
 };
 
-export const mostArtist = (userID) => {
+export const getMostListenedArtistByTime = (userID) => {
   const songs = fetchSongsForUser(userID);
   if (!songs) return null;
   const [artist, time] = getMaxDuration(songs, "artist");
   return artist;
 };
 
-export const mostTimeFriday = (userID) => {
+export const getFridaySongByTime = (userID) => {
   const songsUserListenedTo = getListenEvents(userID);
   if (!songsUserListenedTo.length) {
     return null;
