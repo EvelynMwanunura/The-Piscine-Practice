@@ -7,14 +7,14 @@
 import { getUserIDs } from "./data.mjs";
 import {
   renderMostListenedGenre,
-  renderMostListenedSong,
+  getMostListenedSongByCount,
+  getMostListenedSongByTime,
+  getMostListenedArtistByCount,
+  getMostListenedArtistByTime,
   songListenedMostOnFridayNight,
-  renderMostListenedArtist,
-  mostTime,
-  mostArtist,
-  mostTimeFriday,
+  getFridaySongByTime,
+  getSongPlayedEveryday,
   longestStreakSong,
-  commonSong,
 } from "./common.mjs";
 
 const userSelect = document.getElementById("userSelect");
@@ -65,13 +65,13 @@ const renderTable = (userID) => {
   const mostGenres = renderMostListenedGenre(userID);
 
   const data = {
-    "Most listened song (count)": renderMostListenedSong(userID),
-    "Most listened song (time)": mostTime(userID),
-    "Most listened artist (count)": renderMostListenedArtist(userID),
-    "Most listened artist (time)": mostArtist(userID),
+    "Most listened song (count)": getMostListenedSongByCount(userID),
+    "Most listened song (time)": getMostListenedSongByTime(userID),
+    "Most listened artist (count)": getMostListenedArtistByCount(userID),
+    "Most listened artist (time)": getMostListenedArtistByTime(userID),
     "Friday Night Song (count)": songListenedMostOnFridayNight(userID),
-    "Friday Night Song (time)": mostTimeFriday(userID),
-    "Everyday songs": commonSong(userID),
+    "Friday Night Song (time)": getFridaySongByTime(userID),
+    "Everyday songs": getSongPlayedEveryday(userID),
     "Longest streak song": longestStreakSong(userID),
   };
 
