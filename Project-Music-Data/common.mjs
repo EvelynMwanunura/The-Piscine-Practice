@@ -25,7 +25,7 @@ export const fetchSongsForUser = (userID) => {
 };
 
 /////////////////////////////////////////////////////////
-const renderSongsByDate = (userID) => {
+const groupSongsByDateOfListen = (userID) => {
   const songs = getListenEvents(userID);
 
   return songs.reduce((acc, song) => {
@@ -39,7 +39,7 @@ const renderSongsByDate = (userID) => {
 };
 
 export const commonSong = (userID) => {
-  const songsByDate = renderSongsByDate(userID);
+  const songsByDate = groupSongsByDateOfListen(userID);
 
   const dailySong = Object.values(songsByDate).map(
     (songs) => new Set(songs.map((song) => song.song_id))
@@ -53,7 +53,18 @@ export const commonSong = (userID) => {
     ...dailySong.reduce((common, daySong) => {
       // If you have two Sets, this operation is called the "intersection" - finding the Set which has the overlap of the two sets.
       // Can you work out how to implement this check more simply, using just Sets and no extra arrays?
-      return new Set([...common].filter((songID) => daySong.has(songID)));
+
+      if (!common) {
+        return daySong;
+      }
+
+      const intersection = new Set();
+      for (const songID of common) {
+        if (daySong.has(songID)) {
+          intersection.add(songID);
+        }
+      }
+      return intersection;
     }),
   ];
 
@@ -67,27 +78,30 @@ export const commonSong = (userID) => {
   return songsWithArtist;
 };
 
-export const renderMostListenedGenre = (userID) => {
+const getMostListenedGenres = (userID) => {
   const songs = fetchSongsForUser(userID);
-  if (!songs) return null;
+  if (!songs) return [];
 
   const genreCount = songs.reduce((acc, song) => {
     acc[song.genre] = (acc[song.genre] || 0) + 1;
     return acc;
   }, {});
 
-  const sortedGenres = Object.entries(genreCount)
+  return Object.entries(genreCount)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(([genre]) => genre);
-
-  // We often (though it isn't required) split up the "find the things" logic in one function, and the "display the things" in another.
-  // That would mean here we'd return an array of top genres, and when we are displaying things on the page we'd do the joining into a string, and the counting.
-  return {
-    genres: sortedGenres.join(", "),
-    count: Object.keys(genreCount).length,
-  };
 };
+
+// We often (though it isn't required) split up the "find the things" logic in one function, and the "display the things" in another.
+// That would mean here we'd return an array of top genres, and when we are displaying things on the page we'd do the joining into a string, and the counting.
+
+export const renderMostListenedGenre = (userID) => {
+  const topGenres = getMostListenedGenres(userID);
+  if (topGenres.length === 0) return null;
+  return topGenres;
+};
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const getFridayNightEvents = (userID) => {
@@ -121,15 +135,20 @@ export const songListenedMostOnFridayNight = (userID) => {
   return renderMostListenedSong(userID, getFridayNightEvents);
 };
 
-export const renderMostListenedArtist = (
-  userID,
-  getEvents = getListenEvents
-) => {
-  const mostListenedSong = renderMostListenedSong(userID, getEvents);
-  if (!mostListenedSong) return null;
+export const renderMostListenedArtist = (userID) => {
+  const songs = fetchSongsForUser(userID);
+  if (!songs) return null;
 
-  const [artist] = mostListenedSong.split(" – ");
-  return artist;
+  const artistCount = songs.reduce((acc, song) => {
+    acc[song.artist] = (acc[song.artist] || 0) + 1;
+    return acc;
+  }, {});
+
+  const mostListenedArtist = Object.keys(artistCount).reduce((a, b) =>
+    artistCount[a] > artistCount[b] ? a : b
+  );
+
+  return mostListenedArtist || null;
 };
 
 const getMaxDuration = (songs, key) => {
@@ -146,11 +165,9 @@ export const mostTime = (userID) => {
   const songs = fetchSongsForUser(userID);
   if (!songs || songs.length === 0) return null;
 
-  const songWithMaxDuration = songs.reduce((max, song) =>
-    song.duration_seconds > max.duration_seconds ? song : max
-  );
-
-  return `${songWithMaxDuration.artist} - ${songWithMaxDuration.title}`;
+  const [songId, time] = getMaxDuration(songs, "id");
+  const song = getSong(songId);
+  return song ? `${song.artist} - ${song.title}` : null;
 };
 
 export const mostArtist = (userID) => {
@@ -215,27 +232,46 @@ export const mostTimeFriday = (userID) => {
 
 export const longestStreakSong = (userID) => {
   const songs = fetchSongsForUser(userID);
-  if (!songs) return null;
+  if (!songs || songs.length === 0) return null;
 
-  let maxStreak = 1;
-  let currentStreak = 1;
-  let songTitle = songs[0].title;
-  let currentSong = songTitle;
+  let maxStreak = 0;
+  let currentStreak = 0;
+  let currentSongTitle = null;
+  let longestStreakSongs = [];
 
   for (let i = 1; i < songs.length; i++) {
-    if (songs[i].title === currentSong) {
+    const song = songs[i];
+    if (song.title === currentSongTitle) {
       currentStreak++;
     } else {
-      currentSong = songs[i].title;
+      currentSongTitle = song.title;
       currentStreak = 1;
     }
 
     if (currentStreak > maxStreak) {
       maxStreak = currentStreak;
-      songTitle = currentSong;
+      longestStreakSongs = [currentSongTitle];
+    } else if (currentStreak === maxStreak) {
+      if (!longestStreakSongs.includes(currentSongTitle)) {
+        longestStreakSongs.push(currentSongTitle);
+      }
     }
   }
-  const songObj = songs.find((s) => s.title === songTitle);
-  if (!songObj) return `${songTitle} (${maxStreak} times)`;
-  return `${songObj.artist} – ${songObj.title} `;
+  if (longestStreakSongs.length === 0 && songs.length > 0) {
+    longestStreakSongs.push(songs[0].title);
+    maxStreak = 1;
+  }
+
+  const result = longestStreakSongs.map((title) => {
+    const songObj = songs.find((s) => s.title === title);
+    return songObj ? `${songObj.artist} - ${songObj.title}` : title;
+  });
+
+  if (result.length === 1) {
+    return result[0];
+  } else if (result.length > 1) {
+    return result.join(", ");
+  } else {
+    return null;
+  }
 };
